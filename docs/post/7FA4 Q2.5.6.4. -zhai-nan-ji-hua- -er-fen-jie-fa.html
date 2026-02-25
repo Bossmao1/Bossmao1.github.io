@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html data-color-mode="light" data-dark-theme="dark" data-light-theme="light" lang="zh-CN">
+<head>
+    <meta content="text/html; charset=utf-8" http-equiv="content-type" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <link href='https://mirrors.sustech.edu.cn/cdnjs/ajax/libs/Primer/21.0.7/primer.css' rel='stylesheet' />
+    
+    <link rel="icon" href="https://github.githubassets.com/favicons/favicon.svg"><script>
+        let theme = localStorage.getItem("meek_theme") || "light";
+        document.documentElement.setAttribute("data-color-mode", theme);
+    </script>
+<meta name="description" content="外卖店一共有 $N$ 种食物，分别用 $1$ 到 $N$ 编号。">
+<meta property="og:title" content="7FA4 Q2.5.6.4. 宅男计划 二分解法">
+<meta property="og:description" content="外卖店一共有 $N$ 种食物，分别用 $1$ 到 $N$ 编号。">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://Bossmao1.github.io/post/7FA4%20Q2.5.6.4.%20-zhai-nan-ji-hua-%20-er-fen-jie-fa.html">
+<meta property="og:image" content="https://github.githubassets.com/favicons/favicon.svg">
+<title>7FA4 Q2.5.6.4. 宅男计划 二分解法</title>
+
+
+
+</head>
+<style>
+body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;padding: 45px;font-size: 16px;font-family: sans-serif;line-height: 1.25;}
+#header{display:flex;padding-bottom:8px;border-bottom: 1px solid var(--borderColor-muted, var(--color-border-muted));margin-bottom: 16px;}
+#footer {margin-top:64px; text-align: center;font-size: small;}
+
+</style>
+
+<style>
+.postTitle{margin: auto 0;font-size:40px;font-weight:bold;}
+.title-right{display:flex;margin:auto 0 0 auto;}
+.title-right .circle{padding: 14px 16px;margin-right:8px;}
+#postBody{border-bottom: 1px solid var(--color-border-default);padding-bottom:36px;}
+#postBody hr{height:2px;}
+#cmButton{height:48px;margin-top:48px;}
+#comments{margin-top:64px;}
+.g-emoji{font-size:24px;}
+@media (max-width: 600px) {
+    body {padding: 8px;}
+    .postTitle{font-size:24px;}
+}
+
+</style>
+
+
+
+
+<body>
+    <div id="header">
+<h1 class="postTitle">7FA4 Q2.5.6.4. 宅男计划 二分解法</h1>
+<div class="title-right">
+    <a href="https://Bossmao1.github.io" id="buttonHome" class="btn btn-invisible circle" title="首页">
+        <svg class="octicon" width="16" height="16">
+            <path id="pathHome" fill-rule="evenodd"></path>
+        </svg>
+    </a>
+    
+    <a href="https://github.com/Bossmao1/Bossmao1.github.io/issues/1" target="_blank" class="btn btn-invisible circle" title="Issue">
+        <svg class="octicon" width="16" height="16">
+            <path id="pathIssue" fill-rule="evenodd"></path>
+        </svg>
+    </a>
+    
+
+    <a class="btn btn-invisible circle" onclick="modeSwitch();" title="切换主题">
+        <svg class="octicon" width="16" height="16" >
+            <path id="themeSwitch" fill-rule="evenodd"></path>
+        </svg>
+    </a>
+
+</div>
+</div>
+    <div id="content">
+<div class="markdown-body" id="postBody"><p>外卖店一共有 $N$ 种食物，分别用 $1$ 到 $N$ 编号。</p>
+<p>第 $i$ 种食物有固定的价钱 $P_i$ 和保质期 $S_i$。第 $i$ 种食物会在 $S_i$ 天后过期。JYY 不会吃过期的食物。</p>
+<p>比如 JYY 如果今天点了一份保质期为 $1$ 天的食物，那么 JYY 必须在今天或者明天把这个食物吃掉，否则这个食物就再也不能吃了。保质期可以为 $0$ 天，这样这份食物就必须在购买当天吃掉。</p>
+<p>JYY 现在有 $M$ 块钱，每一次叫外卖需要额外付给送外卖小哥外送费 $F$ 元。送外卖的小哥身强力壮，可以瞬间给 JYY 带来任意多份食物，每种食物可以买任意多份。</p>
+<p>JYY 想知道，在满足每天都能吃到至少一顿没过期的外卖的情况下，他可以最多宅多少天呢？</p>
+<hr>
+<h2>1. 将“最大天数”改写成“判定能否活到 (T)”</h2>
+<p>题目要求最大化能宅的天数。先考虑一个判定问题：给定天数 (T)，是否存在策略使得在预算 (M) 内每天都吃到至少一顿不过期外卖？</p>
+<p>显然若能活到 (T) 天，则一定能活到 (T-1) 天，因此可行性对 (T) 单调。于是可以对 (T) 二分，关键在于实现 <code class="notranslate">check(T)</code>。</p>
+<hr>
+<h2>2. 把策略抽象成“下单次数 + 分段长度”</h2>
+<p>固定要活 (T) 天。每次下单（叫外卖）会付一次外送费 (F)，并买若干份饭，之后连续若干天吃完。于是整个 (T) 天可以被切成 (x) 段，第 (j) 段由第 (j) 次下单供餐，段长为 (L_j)，满足：</p>
+<p>$$
+L_1+L_2+\cdots+L_x=T.
+$$</p>
+<p>单次下单最多能覆盖的天数由最长保质期决定。保质期为 (S_i) 的食物从购买当天算第 (0) 天，可吃到第 (S_i) 天，一共 (S_i+1) 天，因此</p>
+<p>$$
+L_{\max}=\max_i(S_i)+1,\qquad 1\le L_j\le L_{\max}.
+$$</p>
+<hr>
+<h2>3. 得到“最低单价函数” (c(k))</h2>
+<p>在一段中，如果连续吃 (L) 天，那么第 (k) 天（从 0 开始）吃到的那顿必须能放 (k) 天，等价于选择满足 (S_i\ge k) 的食物。</p>
+<p>因此定义：</p>
+<p>$$
+c(k)=\min{P_i\mid S_i\ge k},\qquad k\ge 0.
+$$</p>
+<p>含义：要在“买后第 (k) 天”吃一顿不过期外卖的最低单价。</p>
+<p>性质：</p>
+<ul>
+<li>(c(k)) 单调不降（放得更久只会更贵或相等）；</li>
+<li>由于只有 (N) 种食物，去掉被支配项后，(c(k)) 只会跳变 (\le N) 次（分段常数）。</li>
+</ul>
+<hr>
+<h2>4. 得到“段成本函数” (C(L))</h2>
+<p>若一次下单要覆盖连续 (L) 天，那么要买 (L) 顿：对应 (k=0,1,\dots,L-1)，每顿最少花 (c(k))，再加一次外送费 (F)。因此一次下单的最小成本为：</p>
+<p>$$
+C(L)=F+\sum_{k=0}^{L-1}c(k)\qquad(1\le L\le L_{\max}).
+$$</p>
+<p>于是固定 (T) 后，“下单 (x) 次、段长为 (L_1,\dots,L_x)”的总成本就是：</p>
+<p>$$
+\sum_{j=1}^{x} C(L_j).
+$$</p>
+<hr>
+<h2>5. 关键形状：(C(L)) 离散凸 ⇒ 固定 (x) 时段长只差 1</h2>
+<p>观察差分：</p>
+<p>$$
+C(L+1)-C(L)=c(L).
+$$</p>
+<p>由于 (c(L)) 单调不降，差分单调不降，因此 (C(L)) 是离散凸函数。离散凸的直接结论是：在</p>
+<p>$$
+L_1+\cdots+L_x=T
+$$</p>
+<p>总和固定、(x) 固定时，使 (\sum C(L_j)) 最小的分配一定“尽量平均”，即任意两段长度差不超过 1。</p>
+<p>令</p>
+<p>$$
+q=\left\lfloor\frac{T}{x}\right\rfloor,\qquad r=T-qx\quad(0\le r&lt;x),
+$$</p>
+<p>则最优分段一定是：(r) 段长度为 (q+1)，其余 (x-r) 段长度为 (q)。</p>
+<hr>
+<h2>6. 固定 (T) 与 (x) 的最小花费：定义 (G_T(x))</h2>
+<p>根据上面的分段结构，固定 (T,x) 的最小总花费为：</p>
+<p>$$
+G_T(x)=(x-r)C(q)+rC(q+1),
+$$</p>
+<p>其中 (q=\lfloor T/x\rfloor,\ r=T-qx)。</p>
+<p>在 <code class="notranslate">check(T)</code> 中，我们要判断：</p>
+<p>$$
+\min_x G_T(x)\le M\ ?
+$$</p>
+<p>同时 (x) 需要满足可行范围：</p>
+<ul>
+<li>单次最多覆盖 (L_{\max}) 天，因此至少要</li>
+</ul>
+<p>$$
+x\ge x_{\min}=\left\lceil\frac{T}{L_{\max}}\right\rceil;
+$$</p>
+<ul>
+<li>外送费付得起且一天至多一单，因此至多</li>
+</ul>
+<p>$$
+x\le x_{\max}=\min\left(T,\left\lfloor\frac{M}{F}\right\rfloor\right).
+$$</p>
+<hr>
+<h2>7. 为什么在固定 (q=\lfloor T/x\rfloor) 的区间上，(G_T(x)) 是一次函数</h2>
+<p>当 (\lfloor T/x\rfloor=q) 固定时，(x) 落在一个整数区间：</p>
+<p>$$
+x\in I_q=\left[\left\lfloor\frac{T}{q+1}\right\rfloor+1,\ \left\lfloor\frac{T}{q}\right\rfloor\right].
+$$</p>
+<p>在 (I_q) 上 (q) 不变，(C(q),C(q+1)) 都是常数，而 (r=T-qx) 对 (x) 是一次函数。将</p>
+<p>$$
+G_T(x)=(x-r)C(q)+rC(q+1)
+$$</p>
+<p>展开：</p>
+<p>$$
+\begin{aligned}
+G_T(x)
+&amp;=xC(q)+r\big(C(q+1)-C(q)\big)
+&amp;=xC(q)+(T-qx)\big(C(q+1)-C(q)\big)
+&amp;=T,c(q)+x\big(C(q)-q,c(q)\big),
+\end{aligned}
+$$</p>
+<p>因此在区间 (I_q) 上 (G_T(x)) 是关于 (x) 的一次函数。一次函数在区间上的最小值必在端点取得，所以对每个 (q) 只需检查 (I_q) 的端点 (lo,hi)。</p>
+<hr>
+<h2>8. 从“枚举所有 (q)”压到“只枚举 (O(N)) 个 (q)”</h2>
+<p>直接枚举所有可能的 (q=\lfloor T/x\rfloor) 会有 (O(\sqrt T)) 个取值，但本题还有更强结构：(c(k)) 本身只会跳变 (\le N) 次。</p>
+<p>设 (c(k)) 的分段边界为</p>
+<p>$$
+0=\kappa_0&lt;\kappa_1&lt;\cdots&lt;\kappa_m=L_{\max},\quad m\le N,
+$$</p>
+<p>并且在每段上</p>
+<p>$$
+c(k)=p_j\quad \forall k\in[\kappa_{j-1},\kappa_j-1].
+$$</p>
+<p>若 (q) 落在同一段内，即 (q\in[\kappa_{j-1},\kappa_j-1])，则 (c(q)=p_j) 恒定，且 (C(q)) 在该段内对 (q) 是线性的（每增加 1 增加 (p_j)），因此</p>
+<p>$$
+C(q)-q,c(q)=\text{常数（与 }q\text{ 无关）}.
+$$</p>
+<p>于是同一价格段内的所有 (q) 会产生<strong>同一条</strong>一次函数 (G_T(x)=A+Bx)，只需要关注段边界附近即可。</p>
+<p>实践中取候选：</p>
+<p>$$
+\text{candQ}=\Big(\bigcup_{j=1}^{m}{\kappa_j-1,\kappa_j,\kappa_j+1}\Big)\cap[1,L_{\max}],
+$$</p>
+<p>大小为 (O(N))。</p>
+<hr>
+<h2>9. <code class="notranslate">check(T)</code> 的端点枚举实现方式</h2>
+<p>对每个候选 (q\in\text{candQ})，先算出区间端点：</p>
+<p>$$
+lo=\left\lfloor\frac{T}{q+1}\right\rfloor+1,\qquad
+hi=\left\lfloor\frac{T}{q}\right\rfloor.
+$$</p>
+<p>把 ([lo,hi]) 与可行范围 ([x_{\min},x_{\max}]) 取交，若非空，则将交集端点加入候选集合 <code class="notranslate">candX</code>。</p>
+<p>最后计算</p>
+<p>$$
+\min_{x\in \text{candX}}G_T(x)
+$$</p>
+<p>并与 (M) 比较即可得到 <code class="notranslate">check(T)</code>。</p>
+<hr>
+<h2>10. 总算法</h2>
+<ol>
+<li>预处理 (c(k)) 的分段（去支配后最多 (N) 段），并做前缀和以快速计算 (C(L))；</li>
+<li>对 (T) 二分；</li>
+<li>在 <code class="notranslate">check(T)</code> 中用第 9 节方法枚举候选 (x)，求 (\min G_T(x)\le M)。</li>
+</ol>
+<hr>
+<h2>11. 复杂度要点</h2>
+<ul>
+<li>(c(k)) 分段数 (\le N)，因此候选 (q) 数为 (O(N))，候选 (x) 数也为 (O(N))；</li>
+<li>每次 <code class="notranslate">check(T)</code> 只计算 (O(N)) 个 (G_T(x))；</li>
+<li>外层二分 (T) 约 (O(\log M)) 次。</li>
+</ul>
+<p>总体约为 (O(N\log M))（常数很小，(N\le 200) 时非常轻松）。</p></div>
+<div style="font-size:small;margin-top:8px;float:right;"></div>
+
+<button class="btn btn-block" type="button" onclick="openComments()" id="cmButton">评论</button>
+<div class="comments" id="comments"></div>
+
+</div>
+    <div id="footer"><div id="footer1">Copyright © <span id="copyrightYear"></span> <a href="https://Bossmao1.github.io">Blog Title</a></div>
+<div id="footer2">
+    <span id="runday"></span><span>Powered by <a href="https://meekdai.com/Gmeek.html" target="_blank">Gmeek</a></span>
+</div>
+
+<script>
+var now=new Date();
+document.getElementById("copyrightYear").innerHTML=now.getFullYear();
+
+if(""!=""){
+    var startSite=new Date("");
+    var diff=now.getTime()-startSite.getTime();
+    var diffDay=Math.floor(diff/(1000*60*60*24));
+    document.getElementById("runday").innerHTML="网站运行 "+diffDay+" 天"+" • ";
+}
+</script></div>
+</body>
+<script>
+var IconList={'sun': 'M8 10.5a2.5 2.5 0 100-5 2.5 2.5 0 000 5zM8 12a4 4 0 100-8 4 4 0 000 8zM8 0a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0V.75A.75.75 0 018 0zm0 13a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0v-1.5A.75.75 0 018 13zM2.343 2.343a.75.75 0 011.061 0l1.06 1.061a.75.75 0 01-1.06 1.06l-1.06-1.06a.75.75 0 010-1.06zm9.193 9.193a.75.75 0 011.06 0l1.061 1.06a.75.75 0 01-1.06 1.061l-1.061-1.06a.75.75 0 010-1.061zM16 8a.75.75 0 01-.75.75h-1.5a.75.75 0 010-1.5h1.5A.75.75 0 0116 8zM3 8a.75.75 0 01-.75.75H.75a.75.75 0 010-1.5h1.5A.75.75 0 013 8zm10.657-5.657a.75.75 0 010 1.061l-1.061 1.06a.75.75 0 11-1.06-1.06l1.06-1.06a.75.75 0 011.06 0zm-9.193 9.193a.75.75 0 010 1.06l-1.06 1.061a.75.75 0 11-1.061-1.06l1.06-1.061a.75.75 0 011.061 0z', 'moon': 'M9.598 1.591a.75.75 0 01.785-.175 7 7 0 11-8.967 8.967.75.75 0 01.961-.96 5.5 5.5 0 007.046-7.046.75.75 0 01.175-.786zm1.616 1.945a7 7 0 01-7.678 7.678 5.5 5.5 0 107.678-7.678z', 'sync': 'M1.705 8.005a.75.75 0 0 1 .834.656 5.5 5.5 0 0 0 9.592 2.97l-1.204-1.204a.25.25 0 0 1 .177-.427h3.646a.25.25 0 0 1 .25.25v3.646a.25.25 0 0 1-.427.177l-1.38-1.38A7.002 7.002 0 0 1 1.05 8.84a.75.75 0 0 1 .656-.834ZM8 2.5a5.487 5.487 0 0 0-4.131 1.869l1.204 1.204A.25.25 0 0 1 4.896 6H1.25A.25.25 0 0 1 1 5.75V2.104a.25.25 0 0 1 .427-.177l1.38 1.38A7.002 7.002 0 0 1 14.95 7.16a.75.75 0 0 1-1.49.178A5.5 5.5 0 0 0 8 2.5Z', 'home': 'M6.906.664a1.749 1.749 0 0 1 2.187 0l5.25 4.2c.415.332.657.835.657 1.367v7.019A1.75 1.75 0 0 1 13.25 15h-3.5a.75.75 0 0 1-.75-.75V9H7v5.25a.75.75 0 0 1-.75.75h-3.5A1.75 1.75 0 0 1 1 13.25V6.23c0-.531.242-1.034.657-1.366l5.25-4.2Zm1.25 1.171a.25.25 0 0 0-.312 0l-5.25 4.2a.25.25 0 0 0-.094.196v7.019c0 .138.112.25.25.25H5.5V8.25a.75.75 0 0 1 .75-.75h3.5a.75.75 0 0 1 .75.75v5.25h2.75a.25.25 0 0 0 .25-.25V6.23a.25.25 0 0 0-.094-.195Z', 'github': 'M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z'};
+var utterancesLoad=0;
+
+let themeSettings={
+    "dark": ["dark","moon","#00f0ff","dark-blue"],
+    "light": ["light","sun","#ff5000","github-light"],
+    "auto": ["auto","sync","","preferred-color-scheme"]
+};
+function changeTheme(mode, icon, color, utheme){
+    document.documentElement.setAttribute("data-color-mode",mode);
+    document.getElementById("themeSwitch").setAttribute("d",value=IconList[icon]);
+    document.getElementById("themeSwitch").parentNode.style.color=color;
+    if(utterancesLoad==1){utterancesTheme(utheme);}
+}
+function modeSwitch(){
+    let currentMode=document.documentElement.getAttribute('data-color-mode');
+    let newMode = currentMode === "light" ? "dark" : currentMode === "dark" ? "auto" : "light";
+    localStorage.setItem("meek_theme", newMode);
+    if(themeSettings[newMode]){
+        changeTheme(...themeSettings[newMode]);
+    }
+}
+function utterancesTheme(theme){
+    const message={type:'set-theme',theme: theme};
+    const iframe=document.getElementsByClassName('utterances-frame')[0];
+    iframe.contentWindow.postMessage(message,'https://utteranc.es');
+}
+if(themeSettings[theme]){changeTheme(...themeSettings[theme]);}
+console.log("\n %c Gmeek last https://github.com/Meekdai/Gmeek \n","padding:5px 0;background:#02d81d;color:#fff");
+</script>
+
+<script>
+document.getElementById("pathHome").setAttribute("d",IconList["home"]);
+document.getElementById("pathIssue").setAttribute("d",IconList["github"]);
+
+
+
+function openComments(){
+    cm=document.getElementById("comments");
+    cmButton=document.getElementById("cmButton");
+    cmButton.disabled=true;
+    cmButton.innerHTML="loading";
+    span=document.createElement("span");
+    span.setAttribute("class","AnimatedEllipsis");
+    cmButton.appendChild(span);
+
+    script=document.createElement("script");
+    script.setAttribute("src","https://utteranc.es/client.js");
+    script.setAttribute("repo","Bossmao1/Bossmao1.github.io");
+    script.setAttribute("issue-term","title");
+    
+    if(localStorage.getItem("meek_theme")=="dark"){script.setAttribute("theme","dark-blue");}
+    else if(localStorage.getItem("meek_theme")=="light") {script.setAttribute("theme","github-light");}
+    else{script.setAttribute("theme","preferred-color-scheme");}
+    
+    script.setAttribute("crossorigin","anonymous");
+    script.setAttribute("async","");
+    cm.appendChild(script);
+
+    int=self.setInterval("iFrameLoading()",200);
+}
+
+function iFrameLoading(){
+    var utterances=document.getElementsByClassName('utterances');
+    if(utterances.length==1){
+        if(utterances[0].style.height!=""){
+            utterancesLoad=1;
+            int=window.clearInterval(int);
+            document.getElementById("cmButton").style.display="none";
+            console.log("utterances Load OK");
+        }
+    }
+}
+
+
+
+</script>
+<script>MathJax = {tex: {inlineMath: [["$", "$"]]}};</script><script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+</html>
